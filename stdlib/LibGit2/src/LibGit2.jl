@@ -16,7 +16,7 @@ export with, GitRepo, GitConfig
 const GITHUB_REGEX =
     r"^(?:git@|git://|https://(?:[\w\.\+\-]+@)?)github.com[:/](([^/].+)/(.+?))(?:\.git)?$"i
 
-const REFCOUNT = Threads.Atomic{UInt}()
+const REFCOUNT = Threads.Atomic{UInt}(0)
 
 include("utils.jl")
 include("consts.jl")
@@ -972,12 +972,12 @@ function set_ssl_cert_locations(cert_loc)
           Cint(Consts.SET_SSL_CERT_LOCATIONS), cert_file, cert_dir)
 end
 
-function __init__()
-    @check ccall((:git_libgit2_init, :libgit2), Cint, ())
+function initialize()
     REFCOUNT[] = 1
+    @check ccall((:git_libgit2_init, :libgit2), Cint, ())
 
     atexit() do
-        if Threads.atomic_sub!(REFCOUNT, UInt(1)) == 1
+        if Threads.atomic_sub!(REFCOUNT, UInt(1)) >= 1
             # refcount zero, no objects to be finalized
             ccall((:git_libgit2_shutdown, :libgit2), Cint, ())
         end

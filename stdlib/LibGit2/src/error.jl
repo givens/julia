@@ -93,6 +93,7 @@ end # Error module
 
 macro check(git_func)
     quote
+        REFCOUNT[] == 0 && initialize()
         err = Cint($(esc(git_func::Expr)))
         if err < 0
             throw(Error.GitError(err))

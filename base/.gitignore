@@ -7,3 +7,4 @@
 /version_git.jl
 /version_git.jl.phony
 /userimg.jl
+/precompile_local.jl

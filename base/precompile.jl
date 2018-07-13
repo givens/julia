@@ -16,6 +16,8 @@ for (_pkgid, _mod) in Base.loaded_modules
         @eval PrecompileStagingArea $(Symbol(_mod)) = $_mod
     end
 end
+f = joinpath(@__DIR__, "precompile_local.jl")
+isfile(f) && Base.include(PrecompileStagingArea, f)
 @eval PrecompileStagingArea begin
 precompile(Tuple{Type{Array{Base.StackTraces.StackFrame, 1}}, UndefInitializer, Int64})
 precompile(Tuple{Type{Array{Union{Nothing, String}, 1}}, UndefInitializer, Int64})
